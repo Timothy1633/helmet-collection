@@ -248,16 +248,22 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'card-wrapper';
             wrapper.dataset.speed = (0.01 + Math.random() * 0.015).toFixed(3);
-
+        
             const raceTitle = raceNames[i-1] || `R${i}`;
+        
+            // 使用 onerror 属性：如果小写图片不存在，自动尝试大写文件名
             wrapper.innerHTML = `
                 <div class="card-inner" onclick="this.classList.toggle('is-flipped')">
                     <div class="face front">
-                        <img src="f${i}.jpg" alt="Front">
+                        <img src="f${i}.jpg" 
+                             onerror="if(!this.getAttribute('data-tried')){this.setAttribute('data-tried', '1'); this.src='F${i}.jpg';}" 
+                             alt="Front">
                         <div class="label"><h2>${raceTitle}</h2></div>
                     </div>
                     <div class="face back">
-                        <img src="b${i}.jpg" alt="Back">
+                        <img src="b${i}.jpg" 
+                             onerror="if(!this.getAttribute('data-tried')){this.setAttribute('data-tried', '1'); this.src='B${i}.jpg';}" 
+                             alt="Back">
                     </div>
                 </div>
             `;
