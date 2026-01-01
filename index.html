@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CL16 | Haute Couture Helmet Archive</title>
-    <!-- 引入字体：Elephant (类似风格), Italianno (意大利圆体), Great Vibes -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Italianno&family=Great+Vibes&display=swap" rel="stylesheet">    <style>
+    <!-- 引入 Playfair Display (替代 Elephant) 以及原有的手写体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Italianno&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
         :root {
             --baby-blue: #BDE0FE;
             --electric-blue: #61fdfacf;
             --f-red: #EF1A2D;
+            /* 字体优化：优先使用加载的网页字体，iPhone会自动回退到 Bodoni 72 */
             --font-display: "Playfair Display", "Bodoni 72", "Times New Roman", serif;
             --font-body: "Times New Roman", Times, serif;
             --font-italic: 'Italianno', cursive; 
@@ -26,7 +28,8 @@
             font-family: var(--font-body);
             overflow-x: hidden;
             perspective: 2000px;
-
+            
+            /* 加入平滑渲染优化 */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
@@ -56,36 +59,25 @@
         .grid-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 60px 50px; /* 增加行间隙以容纳偏移 */
+            gap: 60px 50px;
             padding: 0 7vw 150px 7vw;
             max-width: 1800px;
             margin: 0 auto;
             align-items: start;
         }
 
-        /* 4列时：第2、4列向下偏移 */
+        /* 响应式偏移布局 */
         @media (min-width: 1401px) {
-            .card-wrapper:nth-child(4n+2),
-            .card-wrapper:nth-child(4n) {
-                margin-top: var(--stagger-offset);
-            }
+            .card-wrapper:nth-child(4n+2), .card-wrapper:nth-child(4n) { margin-top: var(--stagger-offset); }
         }
-
-        /* 3列时：第2列向下偏移 */
         @media (max-width: 1400px) and (min-width: 901px) {
             .grid-container { grid-template-columns: repeat(3, 1fr); }
-            .card-wrapper:nth-child(3n+2) {
-                margin-top: var(--stagger-offset);
-            }
+            .card-wrapper:nth-child(3n+2) { margin-top: var(--stagger-offset); }
         }
-
-        /* 2列时：第2列向下偏移 */
         @media (max-width: 900px) {
             .grid-container { grid-template-columns: repeat(2, 1fr); gap: 40px 20px; }
-            .card-wrapper:nth-child(2n) {
-                margin-top: calc(var(--stagger-offset) / 2);
-            }
-            :root { --card-radius: 25px; } /* 手机端圆角稍微缩小 */
+            .card-wrapper:nth-child(2n) { margin-top: calc(var(--stagger-offset) / 2); }
+            :root { --card-radius: 25px; }
         }
 
         /* 卡片样式 */
@@ -108,18 +100,16 @@
             cursor: pointer;
         }
 
-        .card-inner.is-flipped {
-            transform: rotateY(180deg) !important;
-        }
+        .card-inner.is-flipped { transform: rotateY(180deg) !important; }
 
         .face {
             position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden;
-            border-radius: var(--card-radius); /* 应用大圆角 */
+            border-radius: var(--card-radius);
             border: 10px solid white; 
             box-sizing: border-box;
             background: white;
-            overflow: hidden; /* 关键：裁剪内部图片 */
+            overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.02);
             transition: box-shadow 0.4s ease;
         }
@@ -128,11 +118,7 @@
             box-shadow: 0 0 0 1.5px var(--electric-blue), 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        .face img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .label {
             position: absolute; bottom: 0; left: 0; width: 100%;
@@ -151,69 +137,18 @@
 
         .back { transform: rotateY(180deg); }
 
-        footer {
-            padding: 100px 20px 150px 20px;
-            text-align: center;
-        }
+        footer { padding: 100px 20px 150px 20px; text-align: center; }
+        .footer-line { width: 60px; height: 1px; background: var(--f-red); margin: 0 auto 40px auto; opacity: 0.3; }
 
-        .footer-line {
-            width: 60px; height: 1px; background: var(--f-red);
-            margin: 0 auto 40px auto; opacity: 0.3;
-        }
+        .reveal-container { position: relative; display: inline-block; padding: 0 20px; overflow: hidden; }
+        .reveal-text { font-family: var(--font-italic); font-size: 3.5rem; color: #333; margin: 0; opacity: 0; transform: translateY(10px); }
+        .reveal-container::after { content: ""; position: absolute; top: 0; left: 0; width: 0; height: 100%; background: var(--electric-blue); z-index: 2; }
+        .reveal-container.animate .reveal-text { animation: textAppear 0.1s forwards 0.8s; }
+        .reveal-container.animate::after { animation: brushPass 1.6s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
 
-        /* 刷过显现容器 */
-        .reveal-container {
-            position: relative;
-            display: inline-block;
-            padding: 0 20px;
-            overflow: hidden;
-        }
-
-        .reveal-text {
-            font-family: var(--font-italic);
-            font-size: 3.5rem;
-            color: #333;
-            margin: 0;
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        /* 刷子伪元素 */
-        .reveal-container::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0;
-            width: 0; height: 100%;
-            background: var(--electric-blue);
-            z-index: 2;
-        }
-
-        /* 激活类：当滚动到页脚时通过JS添加 */
-        .reveal-container.animate .reveal-text {
-            animation: textAppear 0.1s forwards 0.8s;
-        }
-        .reveal-container.animate::after {
-            animation: brushPass 1.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-        }
-
-        @keyframes brushPass {
-            0% { width: 0; left: 0; }
-            50% { width: 100%; left: 0; }
-            100% { width: 0; left: 100%; }
-        }
-
-        @keyframes textAppear {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .footer-text {
-            font-family: var(--font-display);
-            font-size: 1rem;
-            letter-spacing: 8px;
-            color: rgba(0,0,0,0.2);
-            text-transform: uppercase;
-            margin-top: 30px;
-        }
+        @keyframes brushPass { 0% { width: 0; left: 0; } 50% { width: 100%; left: 0; } 100% { width: 0; left: 100%; } }
+        @keyframes textAppear { to { opacity: 1; transform: translateY(0); } }
+        .footer-text { font-family: var(--font-display); font-size: 1rem; letter-spacing: 8px; color: rgba(0,0,0,0.2); text-transform: uppercase; margin-top: 30px; }
     </style>
 </head>
 <body>
@@ -235,52 +170,102 @@
 
     <script>
         const grid = document.getElementById('grid');
-        const raceNames = [
-            "25 Hungary", "25 Monaco", "25 Season", "25 Singapore", "25 China", "25 Miami", "25 Imola", "25 Japan", "25 Monza", "25 Las Vegas", 
-            "24 Season", "24 JAPAN", "24 MIAMI", "24 IMOLA", "24 MONACO", "24 Monza", "24 Singapore", "24 MEXICO", "24 LAS VAGAS", 
-            "23 SEASON", "23 MIAMI", "23 MONACO", "23 CANADA", "23 MONZA", "23 AUSTIN", "23 LAS VAGAS", "23 ABU DHABI", 
-            "22 SEASON", "22 MONACO","22 FRENCH", "22 Monza", "22 Singapore", "22 BRAZIL","22 ABU DHABI", "22 AUSTIN",
-            "21 TEST", "21 IMOLA", "21 Portugal/SEASON", "21 MONACO", "21 FRENCH", "21 AUSTIN", "21 BRITiSH", "21 MONZA", "21 ABU DHABI",
-            "20 season", "20 austria", "20 Bahrain", "20 IMOLA", "20 MONZA", "20 ABU DHABI", "25 ABU DHABI", 
-            "19 season","19 CHINA",  "19 Monaco", "19 MONZA","19 america" ,"19 ABU DHABI", 
-            "18 season", "18 Monaco","24 ABU DHABI"
+
+        const helmetList = [
+            /* --- 在此处插入新卡片 (显示在最前面) --- */
+            { title: "25 Hungary", id: 1 },
+            { title: "25 Monaco", id: 2 },
+            { title: "25 Season", id: 3 },
+            { title: "25 Singapore", id: 4 },
+            { title: "25 China", id: 5 },
+            { title: "25 Miami", id: 6 },
+            { title: "25 Imola", id: 7 },
+            { title: "25 Japan", id: 8 },
+            { title: "25 Monza", id: 9 },
+            { title: "25 Las Vegas", id: 10 },
+            { title: "24 Season", id: 11 },
+            { title: "24 JAPAN", id: 12 },
+            { title: "24 MIAMI", id: 13 },
+            { title: "24 IMOLA", id: 14 },
+            { title: "24 MONACO", id: 15 },
+            { title: "24 Monza", id: 16 },
+            { title: "24 Singapore", id: 17 },
+            { title: "24 MEXICO", id: 18 },
+            { title: "24 LAS VAGAS", id: 19 },
+            { title: "23 SEASON", id: 20 },
+            { title: "23 MIAMI", id: 21 },
+            { title: "23 MONACO", id: 22 },
+            { title: "23 CANADA", id: 23 },
+            { title: "23 MONZA", id: 24 },
+            { title: "23 AUSTIN", id: 25 },
+            { title: "23 LAS VAGAS", id: 26 },
+            { title: "23 ABU DHABI", id: 27 },
+            { title: "22 SEASON", id: 28 },
+            { title: "22 MONACO", id: 29 },
+            { title: "22 FRENCH", id: 30 },
+            { title: "22 Monza", id: 31 },
+            { title: "22 Singapore", id: 32 },
+            { title: "22 BRAZIL", id: 33 },
+            { title: "22 ABU DHABI", id: 34 },
+            { title: "22 AUSTIN", id: 35 },
+            { title: "21 TEST", id: 36 },
+            { title: "21 IMOLA", id: 37 },
+            { title: "21 Portu/SEASON", id: 38 },
+            { title: "21 MONACO", id: 39 },
+            { title: "21 FRENCH", id: 40 },
+            { title: "21 AUSTIN", id: 41 },
+            { title: "21 BRITiSH", id: 42 },
+            { title: "21 MONZA", id: 43 },
+            { title: "21 ABU DHABI", id: 44 },
+            { title: "20 season", id: 45 },
+            { title: "20 austria", id: 46 },
+            { title: "20 Bahrain", id: 47 },
+            { title: "20 IMOLA", id: 48 },
+            { title: "20 MONZA", id: 49 },
+            { title: "20 ABU DHABI", id: 50 },
+            { title: "25 ABU DHABI", id: 51 },
+            { title: "19 season", id: 52 },
+            { title: "19 CHINA", id: 53 },
+            { title: "19 Monaco", id: 54 },
+            { title: "19 MONZA", id: 55 },
+            { title: "19 america", id: 56 },
+            { title: "19 ABU DHABI", id: 57 },
+            { title: "18 season", id: 58 },
+            { title: "18 Monaco", id: 59 },
+            { title: "24 ABU DHABI", id: 60 }
         ];
 
-        // 生成卡片
-        for (let i = 1; i <= 60; i++) {
+        // 渲染函数
+        helmetList.forEach((item) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'card-wrapper';
             wrapper.dataset.speed = (0.01 + Math.random() * 0.015).toFixed(3);
         
-            const raceTitle = raceNames[i-1] || `R${i}`;
-        
-            // 使用 onerror 属性：如果小写图片不存在，自动尝试大写文件名
             wrapper.innerHTML = `
                 <div class="card-inner" onclick="this.classList.toggle('is-flipped')">
                     <div class="face front">
-                        <img src="f${i}.jpg" 
-                             onerror="if(!this.getAttribute('data-tried')){this.setAttribute('data-tried', '1'); this.src='F${i}.jpg';}" 
+                        <img src="f${item.id}.jpg" 
+                             onerror="if(!this.getAttribute('data-tried')){this.setAttribute('data-tried', '1'); this.src='F${item.id}.jpg';}" 
                              alt="Front">
-                        <div class="label"><h2>${raceTitle}</h2></div>
+                        <div class="label"><h2>${item.title}</h2></div>
                     </div>
                     <div class="face back">
-                        <img src="b${i}.jpg" 
-                             onerror="if(!this.getAttribute('data-tried')){this.setAttribute('data-tried', '1'); this.src='B${i}.jpg';}" 
+                        <img src="b${item.id}.jpg" 
+                             onerror="if(!this.getAttribute('data-tried')){this.setAttribute('data-tried', '1'); this.src='B${item.id}.jpg';}" 
                              alt="Back">
                     </div>
                 </div>
             `;
             grid.appendChild(wrapper);
-        }
+        });
 
+        // 滚动显示与视差效果逻辑保持不变
         const observerOptions = { threshold: 0.1 };
         const scrollObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                    if(entry.target.id === 'revealTrigger') {
-                        entry.target.classList.add('animate');
-                    }
+                    if(entry.target.id === 'revealTrigger') entry.target.classList.add('animate');
                 }
             });
         }, observerOptions);
@@ -289,23 +274,21 @@
         scrollObserver.observe(document.getElementById('revealTrigger'));
 
         function handleMotion() {
-            const wrappers = document.querySelectorAll('.card-wrapper.visible');
-            wrappers.forEach((card) => {
+            document.querySelectorAll('.card-wrapper.visible').forEach((card) => {
                 const speed = parseFloat(card.dataset.speed);
                 const rect = card.getBoundingClientRect();
                 const offset = (window.innerHeight / 2) - (rect.top + rect.height / 2);
-                // 仅应用位移，不覆盖CSS中的margin-top
                 card.style.transform = `translate3d(0, ${offset * speed}px, 0)`;
             });
             requestAnimationFrame(handleMotion);
         }
         window.addEventListener('scroll', handleMotion);
 
+        // 悬停倾斜效果
         document.querySelectorAll('.card-wrapper').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const inner = card.querySelector('.card-inner');
                 if(inner.classList.contains('is-flipped')) return;
-
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -313,12 +296,9 @@
                 const yRot = ((x / rect.width) - 0.5) * 10;
                 inner.style.transform = `rotateX(${xRot}deg) rotateY(${yRot}deg) scale(1.03)`;
             });
-
-            card.addEventListener('mouseleave', (e) => {
+            card.addEventListener('mouseleave', () => {
                 const inner = card.querySelector('.card-inner');
-                if(!inner.classList.contains('is-flipped')) {
-                    inner.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
-                }
+                if(!inner.classList.contains('is-flipped')) inner.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
             });
         });
     </script>
