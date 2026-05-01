@@ -215,8 +215,51 @@
         @keyframes brushPass { 0% { width: 0; left: 0; } 50% { width: 100%; left: 0; } 100% { width: 0; left: 100%; } }
         @keyframes textAppear { to { opacity: 1; transform: translateY(0); } }
         .footer-text { font-family: var(--font-display); font-size: 1rem; letter-spacing: 8px; color: rgba(0,0,0,0.2); text-transform: uppercase; margin-top: 30px; }
+    
+    /* 搜索框容器 */
+        .search-container {
+            max-width: 300px;
+            margin: -40px auto 60px auto; /* 放在标题下方 */
+            position: relative;
+            z-index: 10;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-align: center;
+            outline: none;
+            transition: all 0.4s ease;
+            color: #333;
+        }
+
+        #searchInput:focus {
+            border-bottom: 1px solid var(--f-red);
+            letter-spacing: 6px;
+        }
+
+        #searchInput::placeholder {
+            color: rgba(0, 0, 0, 0.2);
+            letter-spacing: 3px;
+        }
+
+        /* 隐藏搜索不匹配的卡片 */
+        .card-wrapper.search-hidden {
+            display: none;
+        }
+    
     </style>
+
 </head>
+
+
 <body>
     
    
@@ -239,6 +282,12 @@
         <p>Helmet Collection</p>
         <h1>LECLERC <span>16</span></h1>
     </header>
+
+
+    <!-- 插入搜索框 -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="SEARCH GP OR YEAR..." autocomplete="off">
+    </div>
 
     <div class="grid-container" id="grid"></div>
 
@@ -324,7 +373,8 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'card-wrapper';
             wrapper.dataset.speed = (0.01 + Math.random() * 0.015).toFixed(3);
-        
+            wrapper.dataset.title = item.title.toLowerCase(); 
+
             wrapper.innerHTML = `
                 <div class="card-inner" onclick="this.classList.toggle('is-flipped')">
                     <div class="face front">
@@ -405,7 +455,26 @@
                 musicText.innerText = "SOUND ON";
             }
         }
+        // 搜索功能逻辑
+        const searchInput = document.getElementById('searchInput');
         
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.card-wrapper');
+            
+            cards.forEach(card => {
+                const title = card.dataset.title;
+                if (title.includes(term)) {
+                    card.classList.remove('search-hidden');
+                } else {
+                    card.classList.add('search-hidden');
+                }
+            });
+            
+            // 搜索后重新计算视差，防止布局闪烁
+            handleMotion();
+        });
+
     </script>
 </body>
 </html>
